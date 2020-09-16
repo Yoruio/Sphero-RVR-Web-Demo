@@ -1,0 +1,123 @@
+<html>
+<body style="width:960px; margin: 20px auto;">
+<h1>GUMSTIX RVR DEMO</h1>
+<button class="button travel" id="left" oncontextmenu="event.preventDefault();">Left</button>
+<button class="button travel" id="forward" oncontextmenu="event.preventDefault();">Forward</button>
+<button class="button travel" id="right" oncontextmenu="event.preventDefault();">Right</button>
+<button class="button travel" id="backward" oncontextmenu="event.preventDefault();">Backward</button>
+<button class="button piLEDs" id="piLED1" oncontextmenu="event.preventDefault();">Toggle LED</button>
+<button class="button rvr" id="RVRon" oncontextmenu="event.preventDefault();">Wake RVR</button>
+<button class="button rvr" id="RVRoff" oncontextmenu="event.preventDefault();">Shutdown</button>
+</body>
+
+<script>
+let left = document.querySelector("#left");
+let forward = document.querySelector("#forward");
+let right = document.querySelector("#right");
+let backward = document.querySelector("#backward");
+let piLED1 = document.querySelector("#piLED1");
+let RVRon = document.querySelector("#RVRon");
+let RVRoff = document.querySelector("#RVRoff");
+
+const travel = document.querySelectorAll('.travel');
+const piLEDs = document.querySelectorAll('.piLEDs');
+const rvr = document.querySelectorAll('.rvr');
+const allButtons = document.querySelectorAll('.button');
+
+travel.forEach(function(b){
+    b.addEventListener('mousedown', post_travel);
+    b.addEventListener('mouseup', post_travel);
+});
+piLEDs.forEach(function(b){
+    b.addEventListener('click', post_piled);
+});
+rvr.forEach(function(b){
+    b.addEventListener('click', post_rvr);
+});
+
+function post_json(data){
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", '/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(data);
+}
+
+function post_travel(e) {
+    //assign post command
+    system = "travel"
+    switch(e.target){
+        case left:
+            command = "left";
+        break;
+        case forward:
+            command = "forward";
+        break;
+        case right:
+            command = "right";
+        break;
+        
+        case backward:
+            command = "backward";
+        break;
+        
+    }
+    
+    //assign post type
+    switch(e.type){
+        case 'mousedown':
+            type = "on";
+        break;
+        case 'mouseup':
+            type = "off";
+        break;
+        default:
+        type="";
+    }
+    
+    post_json(JSON.stringify({
+        'system': system,
+        'type': type,
+        'command': command
+    }));
+}
+
+function post_piled(e) {
+    post_json(JSON.stringify({
+        'system': 'piLED',
+        'type': 'led',
+        'command': 'toggle'
+    }))
+}
+
+function post_rvr(e) {
+    switch(e.target){
+        case RVRon:
+            post_json(JSON.stringify({
+                'system': 'RVRSetup',
+                'type': '',
+                'command': 'on'
+            }))
+        break;
+        case RVRoff:
+            post_json(JSON.stringify({
+                'system': 'RVRSetup',
+                'type': '',
+                'command': 'off'
+            }))
+        break;
+    }
+}
+
+function clickup(e) {
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", '/', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.send(JSON.stringify({
+        'type': 'off',
+        'command': e
+    }));
+    
+}
+
+</script>
+</html>
